@@ -6,6 +6,7 @@ package io.github.nucleuspowered.nucleus.modules.teleport.events;
 
 import io.github.nucleuspowered.nucleus.api.teleport.event.NucleusTeleportEvent;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.impl.AbstractEvent;
 import org.spongepowered.api.text.Text;
@@ -20,11 +21,11 @@ public abstract class RequestEvent extends AbstractEvent implements NucleusTelep
     private boolean isCancelled = false;
 
     private final Cause cause;
-    private final Player targetEntity;
+    private final User targetUser;
 
-    private RequestEvent(Cause cause, Player targetEntity) {
+    private RequestEvent(Cause cause, User targetUser) {
         this.cause = cause;
-        this.targetEntity = targetEntity;
+        this.targetUser = targetUser;
     }
 
     @Override public Optional<Text> getCancelMessage() {
@@ -35,8 +36,8 @@ public abstract class RequestEvent extends AbstractEvent implements NucleusTelep
         this.cancelMessage = message;
     }
 
-    @Override public Player getTargetEntity() {
-        return this.targetEntity;
+    @Override public User getTargetUser() {
+        return this.targetUser;
     }
 
     @Override public boolean isCancelled() {
@@ -53,15 +54,15 @@ public abstract class RequestEvent extends AbstractEvent implements NucleusTelep
 
     public static class CauseToPlayer extends RequestEvent implements NucleusTeleportEvent.Request.CauseToPlayer {
 
-        public CauseToPlayer(Cause cause, Player targetEntity) {
-            super(cause, targetEntity);
+        public CauseToPlayer(Cause cause, User targetUser) {
+            super(cause, targetUser);
         }
     }
 
     public static class PlayerToCause extends RequestEvent implements NucleusTeleportEvent.Request.PlayerToCause {
 
-        public PlayerToCause(Cause cause, Player targetEntity) {
-            super(cause, targetEntity);
+        public PlayerToCause(Cause cause, User targetUser) {
+            super(cause, targetUser);
         }
     }
 }

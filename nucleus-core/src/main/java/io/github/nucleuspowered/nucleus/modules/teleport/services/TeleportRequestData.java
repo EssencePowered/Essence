@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.teleport.services;
 
+import io.github.nucleuspowered.nucleus.api.module.teleport.data.TeleportRequest;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.Transform;
@@ -18,13 +19,13 @@ import java.util.function.Consumer;
 import javax.annotation.Nullable;
 
 // Managing teleport requests.
-public class TeleportRequest extends TeleportTask {
+public class TeleportRequestData extends TeleportTask implements TeleportRequest {
 
     private final Instant expiry;
     private boolean forcedExpired;
     private boolean expired;
 
-    public TeleportRequest(
+    public TeleportRequestData(
             INucleusServiceCollection serviceCollection,
             UUID toTeleport,
             UUID target,

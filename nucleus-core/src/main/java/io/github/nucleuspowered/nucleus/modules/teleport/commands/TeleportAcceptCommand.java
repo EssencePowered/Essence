@@ -27,7 +27,7 @@ public class TeleportAcceptCommand implements ICommandExecutor<Player> {
     @Override
     public ICommandResult execute(ICommandContext<? extends Player> context) throws CommandException {
         return context.getResultFromBoolean(context.getServiceCollection()
-                .getServiceUnchecked(PlayerTeleporterService.class)
+                .teleporterService()
                 .accept(context.getIfPlayer()));
     }
 

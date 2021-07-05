@@ -7,13 +7,13 @@ package io.github.nucleuspowered.nucleus.modules.teleport.commands;
 import com.google.common.collect.Lists;
 import io.github.nucleuspowered.nucleus.modules.teleport.TeleportPermissions;
 import io.github.nucleuspowered.nucleus.modules.teleport.events.RequestEvent;
-import io.github.nucleuspowered.nucleus.modules.teleport.services.PlayerTeleporterService;
 import io.github.nucleuspowered.nucleus.scaffold.command.ICommandContext;
 import io.github.nucleuspowered.nucleus.scaffold.command.ICommandExecutor;
 import io.github.nucleuspowered.nucleus.scaffold.command.ICommandResult;
 import io.github.nucleuspowered.nucleus.scaffold.command.annotation.Command;
 import io.github.nucleuspowered.nucleus.scaffold.command.annotation.EssentialsEquivalent;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
+import io.github.nucleuspowered.nucleus.services.interfaces.IPlayerTeleporterService;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.args.CommandElement;
@@ -39,9 +39,9 @@ public class TeleportAskAllHereCommand implements ICommandExecutor<Player> {
 
     @Override public ICommandResult execute(ICommandContext<? extends Player> context) throws CommandException {
         List<Player> cancelled = Lists.newArrayList();
-        PlayerTeleporterService playerTeleporterService = context
+        IPlayerTeleporterService playerTeleporterService = context
                 .getServiceCollection()
-                .getServiceUnchecked(PlayerTeleporterService.class);
+                .teleporterService();
         for (Player x : Sponge.getServer().getOnlinePlayers()) {
             if (context.is(x)) {
                 continue;

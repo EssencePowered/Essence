@@ -25,6 +25,7 @@ import io.github.nucleuspowered.nucleus.api.module.note.NucleusNoteService;
 import io.github.nucleuspowered.nucleus.api.module.playerinfo.NucleusSeenService;
 import io.github.nucleuspowered.nucleus.api.module.rtp.NucleusRTPService;
 import io.github.nucleuspowered.nucleus.api.module.staffchat.NucleusStaffChatService;
+import io.github.nucleuspowered.nucleus.api.module.teleport.NucleusPlayerTeleporterService;
 import io.github.nucleuspowered.nucleus.api.module.warning.NucleusWarningService;
 import io.github.nucleuspowered.nucleus.api.module.warp.NucleusWarpService;
 import io.github.nucleuspowered.nucleus.api.placeholder.NucleusPlaceholderService;
@@ -309,6 +310,19 @@ public class NucleusAPI {
      */
     public static Optional<NucleusSeenService> getSeenService() {
         return getService(NucleusSeenService.class);
+    }
+
+    /**
+     * Gets the {@link NucleusPlayerTeleporterService}, if it exists.
+     *
+     * <p>
+     *     Requires the "teleport" module.
+     * </p>
+     *
+     * @return The {@link NucleusPlayerTeleporterService}
+     */
+    public static Optional<NucleusPlayerTeleporterService> getTeleporterService() {
+        return getService(NucleusPlayerTeleporterService.class);
     }
 
     /**

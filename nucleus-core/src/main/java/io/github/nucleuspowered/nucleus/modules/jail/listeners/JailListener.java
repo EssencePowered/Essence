@@ -157,13 +157,13 @@ public class JailListener implements IReloadableService.Reloadable, ListenerBase
     }
 
     @Listener
-    public void onRequestSent(NucleusTeleportEvent.Request event, @Root Player cause, @Getter("getTargetEntity") Player player) {
+    public void onRequestSent(NucleusTeleportEvent.Request event, @Root Player cause, @Getter("getTargetUser") User user) {
         if (this.handler.isPlayerJailed(cause)) {
             event.setCancelled(true);
             event.setCancelMessage(this.messageProviderService.getMessageFor(cause.getLocale(), "jail.teleportcause.isjailed"));
-        } else if (this.handler.isPlayerJailed(player)) {
+        } else if (this.handler.isPlayerJailed(user)) {
             event.setCancelled(true);
-            event.setCancelMessage(this.messageProviderService.getMessageFor(cause.getLocale(),"jail.teleporttarget.isjailed", player.getName()));
+            event.setCancelMessage(this.messageProviderService.getMessageFor(cause.getLocale(),"jail.teleporttarget.isjailed", user.getName()));
         }
     }
 

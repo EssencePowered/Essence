@@ -11,6 +11,7 @@ import io.github.nucleuspowered.nucleus.scaffold.command.ICommandContext;
 import io.github.nucleuspowered.nucleus.scaffold.command.ICommandExecutor;
 import io.github.nucleuspowered.nucleus.scaffold.command.ICommandResult;
 import io.github.nucleuspowered.nucleus.scaffold.command.NucleusParameters;
+import io.github.nucleuspowered.nucleus.scaffold.command.NucleusParameters.Keys;
 import io.github.nucleuspowered.nucleus.scaffold.command.annotation.Command;
 import io.github.nucleuspowered.nucleus.scaffold.command.annotation.CommandModifier;
 import io.github.nucleuspowered.nucleus.scaffold.command.annotation.EssentialsEquivalent;
@@ -23,6 +24,7 @@ import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.args.CommandElement;
 import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.CauseStackManager;
 import org.spongepowered.plugin.meta.util.NonnullByDefault;
 
@@ -65,19 +67,19 @@ public class TeleportAskHereCommand implements ICommandExecutor<Player> {
         return new CommandElement[] {
             GenericArguments.flags()
                     .permissionFlag(TeleportPermissions.TELEPORT_HERE_FORCE, "f")
-                    .buildWith(NucleusParameters.ONE_PLAYER.get(serviceCollection))
+                    .buildWith(NucleusParameters.ONE_USER.get(serviceCollection))
         };
     }
 
     @Override public Optional<ICommandResult> preExecute(ICommandContext.Mutable<? extends Player> context) throws CommandException {
         boolean cont = context.getServiceCollection()
-                .getServiceUnchecked(PlayerTeleporterService.class)
-                .canTeleportTo(context.getIfPlayer(), context.requireOne(NucleusParameters.Keys.PLAYER, Player.class));
+                .teleporterService()
+                .canTeleportTo(context.getUserFromArgs(), context.requireOne(Keys.USER, User.class));
         return cont ? Optional.empty() : Optional.of(context.failResult());
     }
 
     @Override public ICommandResult execute(ICommandContext<? extends Player> context) throws CommandException {
-        Player target = context.requireOne(NucleusParameters.Keys.PLAYER, Player.class);
+        User target = context.requireOne(Keys.USER, User.class);
         if (context.is(target)) {
             return context.errorResult("command.teleport.self");
         }
@@ -102,7 +104,7 @@ public class TeleportAskHereCommand implements ICommandExecutor<Player> {
                     cooldownSeconds
             );
             context.getServiceCollection()
-                    .getServiceUnchecked(PlayerTeleporterService.class)
+                    .teleporterService()
                     .requestTeleport(
                         src,
                         target,

@@ -25,6 +25,7 @@ import io.github.nucleuspowered.nucleus.services.interfaces.IPlatformService;
 import io.github.nucleuspowered.nucleus.services.interfaces.IPlayerDisplayNameService;
 import io.github.nucleuspowered.nucleus.services.interfaces.IPlayerInformationService;
 import io.github.nucleuspowered.nucleus.services.interfaces.IPlayerOnlineService;
+import io.github.nucleuspowered.nucleus.services.interfaces.IPlayerTeleporterService;
 import io.github.nucleuspowered.nucleus.services.interfaces.IReloadableService;
 import io.github.nucleuspowered.nucleus.services.interfaces.IStorageManager;
 import io.github.nucleuspowered.nucleus.services.interfaces.ITextFileControllerCollection;
@@ -67,6 +68,8 @@ public interface INucleusServiceCollection {
     IModuleDataProvider moduleDataProvider();
 
     INucleusTeleportService teleportService();
+
+    IPlayerTeleporterService teleporterService();
 
     ICommandElementSupplier commandElementSupplier();
 

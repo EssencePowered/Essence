@@ -27,6 +27,6 @@ public class TeleportDenyCommand implements ICommandExecutor<Player> {
     @Override
     public ICommandResult execute(ICommandContext<? extends Player> context) throws CommandException {
         return context.getResultFromBoolean(
-                context.getServiceCollection().getServiceUnchecked(PlayerTeleporterService.class).deny(context.getIfPlayer()));
+                context.getServiceCollection().teleporterService().deny(context.getIfPlayer()));
     }
 }

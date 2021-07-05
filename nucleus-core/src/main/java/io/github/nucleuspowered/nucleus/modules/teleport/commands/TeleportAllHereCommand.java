@@ -6,6 +6,7 @@ package io.github.nucleuspowered.nucleus.modules.teleport.commands;
 
 import io.github.nucleuspowered.nucleus.api.teleport.data.TeleportScanners;
 import io.github.nucleuspowered.nucleus.modules.teleport.TeleportPermissions;
+import io.github.nucleuspowered.nucleus.modules.teleport.events.CommandEvent;
 import io.github.nucleuspowered.nucleus.scaffold.command.ICommandContext;
 import io.github.nucleuspowered.nucleus.scaffold.command.ICommandExecutor;
 import io.github.nucleuspowered.nucleus.scaffold.command.ICommandResult;
@@ -29,7 +30,7 @@ public class TeleportAllHereCommand implements ICommandExecutor<Player> {
 
     @Override
     public CommandElement[] parameters(INucleusServiceCollection serviceCollection) {
-        return new CommandElement[] {
+        return new CommandElement[]{
                 GenericArguments.flags().flag("f").buildWith(GenericArguments.none())
         };
     }
@@ -38,20 +39,28 @@ public class TeleportAllHereCommand implements ICommandExecutor<Player> {
     public ICommandResult execute(ICommandContext<? extends Player> context) throws CommandException {
         MessageChannel.TO_ALL.getMembers()
                 .forEach(x -> context.sendMessageTo(x, "command.tpall.broadcast", context.getName()));
-        Transform<World> toTransform = context.getIfPlayer().getTransform();
-        Sponge.getServer().getOnlinePlayers().forEach(x -> {
+        Player player = context.getIfPlayer();
+        Transform<World> toTransform = player.getTransform();
+        for (Player x : Sponge.getServer().getOnlinePlayers()) {
             if (!context.is(x)) {
+                CommandEvent.UserToCause event = new CommandEvent.UserToCause(context.getCause(), x.getUniqueId(), player.getUniqueId());
+                if (Sponge.getEventManager().post(event)) {
+                    if (event.getCancelMessage().isPresent()) {
+                        return context.errorResultLiteral(event.getCancelMessage().get());
+                    } else {
+                        return context.errorResult("command.tp.eventfailed");
+                    }
+                }
                 context.getServiceCollection()
                         .teleportService()
                         .teleportPlayerSmart(x,
-                            toTransform,
-                            false,
-                            !context.getOne("f", Boolean.class).orElse(false),
-                            TeleportScanners.NO_SCAN.get()
-                );
+                                toTransform,
+                                false,
+                                !context.getOne("f", Boolean.class).orElse(false),
+                                TeleportScanners.NO_SCAN.get()
+                        );
             }
-        });
-
+        }
         return context.successResult();
     }
 }

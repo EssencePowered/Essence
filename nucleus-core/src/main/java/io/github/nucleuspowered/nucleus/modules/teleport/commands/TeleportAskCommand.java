@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.teleport.commands;
 
+import io.github.nucleuspowered.nucleus.api.module.teleport.NucleusPlayerTeleporterService;
 import io.github.nucleuspowered.nucleus.modules.teleport.TeleportPermissions;
 import io.github.nucleuspowered.nucleus.modules.teleport.config.TeleportConfig;
 import io.github.nucleuspowered.nucleus.modules.teleport.events.RequestEvent;
@@ -24,6 +25,7 @@ import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.args.CommandElement;
 import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 
 import java.time.Duration;
@@ -66,15 +68,15 @@ public class TeleportAskCommand implements ICommandExecutor<Player>, IReloadable
     @Override
     public CommandElement[] parameters(INucleusServiceCollection serviceCollection) {
         return new CommandElement[] {
-                GenericArguments.flags().permissionFlag(TeleportPermissions.TELEPORT_ASK_FORCE, "f").buildWith(NucleusParameters.ONE_PLAYER.get(serviceCollection))
+                GenericArguments.flags().permissionFlag(TeleportPermissions.TELEPORT_ASK_FORCE, "f").buildWith(NucleusParameters.ONE_USER.get(serviceCollection))
         };
     }
 
     @Override public Optional<ICommandResult> preExecute(ICommandContext.Mutable<? extends Player> context) throws CommandException {
-        boolean canTeleport = context.getServiceCollection().getServiceUnchecked(PlayerTeleporterService.class)
+        boolean canTeleport = context.getServiceCollection().teleporterService()
                 .canTeleportTo(
                         context.getIfPlayer(),
-                        context.requireOne(NucleusParameters.Keys.PLAYER, Player.class)
+                        context.requireOne(NucleusParameters.Keys.USER, User.class)
                 );
         if (canTeleport) {
             return Optional.empty();
@@ -85,7 +87,7 @@ public class TeleportAskCommand implements ICommandExecutor<Player>, IReloadable
 
     @Override
     public ICommandResult execute(ICommandContext<? extends Player> context) throws CommandException {
-        Player target = context.requireOne(NucleusParameters.Keys.PLAYER, Player.class);
+        User target = context.requireOne(NucleusParameters.Keys.USER, User.class);
         if (context.is(target)) {
             return context.errorResult("command.teleport.self");
         }
@@ -106,7 +108,7 @@ public class TeleportAskCommand implements ICommandExecutor<Player>, IReloadable
             cooldownSetter = player -> setCooldown(context);
         }
 
-        context.getServiceCollection().getServiceUnchecked(PlayerTeleporterService.class).requestTeleport(
+        context.getServiceCollection().teleporterService().requestTeleport(
                 context.getIfPlayer(),
                 target,
                 context.getCost(),

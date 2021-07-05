@@ -17,6 +17,7 @@ import com.typesafe.config.ConfigException;
 import io.github.nucleuspowered.nucleus.api.NucleusAPITokens;
 import io.github.nucleuspowered.nucleus.api.core.NucleusUserPreferenceService;
 import io.github.nucleuspowered.nucleus.api.core.NucleusWarmupManagerService;
+import io.github.nucleuspowered.nucleus.api.module.teleport.NucleusPlayerTeleporterService;
 import io.github.nucleuspowered.nucleus.api.placeholder.NucleusPlaceholderService;
 import io.github.nucleuspowered.nucleus.api.teleport.NucleusSafeTeleportService;
 import io.github.nucleuspowered.nucleus.api.text.NucleusTextTemplateFactory;
@@ -352,6 +353,7 @@ public class NucleusBootstrap {
         game.getServiceManager().setProvider(this.pluginContainer, NucleusWarmupManagerService.class, this.serviceCollection.warmupService());
         game.getServiceManager().setProvider(this.pluginContainer, NucleusUserPreferenceService.class, this.serviceCollection.userPreferenceService());
         game.getServiceManager().setProvider(this.pluginContainer, NucleusSafeTeleportService.class, this.serviceCollection.teleportService());
+        game.getServiceManager().setProvider(this.pluginContainer, NucleusPlayerTeleporterService.class, this.serviceCollection.teleporterService());
         game.getServiceManager().setProvider(this.pluginContainer, NucleusPlaceholderService.class, this.serviceCollection.placeholderService());
         game.getServiceManager().setProvider(this.pluginContainer, NucleusTextTemplateFactory.class, this.serviceCollection.textTemplateFactory());
 

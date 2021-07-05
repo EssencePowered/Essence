@@ -8,6 +8,7 @@ import io.github.nucleuspowered.nucleus.api.teleport.data.TeleportResult;
 import io.github.nucleuspowered.nucleus.api.teleport.data.TeleportScanners;
 import io.github.nucleuspowered.nucleus.modules.teleport.TeleportPermissions;
 import io.github.nucleuspowered.nucleus.modules.teleport.config.TeleportConfig;
+import io.github.nucleuspowered.nucleus.modules.teleport.events.CommandEvent;
 import io.github.nucleuspowered.nucleus.modules.teleport.services.PlayerTeleporterService;
 import io.github.nucleuspowered.nucleus.scaffold.command.ICommandContext;
 import io.github.nucleuspowered.nucleus.scaffold.command.ICommandExecutor;
@@ -42,7 +43,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 @EssentialsEquivalent(value = {"tp", "tele", "tp2p", "teleport", "tpo"}, isExact = false,
-        notes = "If you have permission, this will override '/tptoggle' automatically.")
+                      notes = "If you have permission, this will override '/tptoggle' automatically.")
 @NonnullByDefault
 @Command(
         aliases = {"teleport", "tele", "$tp"},
@@ -76,22 +77,23 @@ public class TeleportCommand implements ICommandExecutor<CommandSource>, IReload
 
     private boolean isDefaultQuiet = false;
 
-    @Override public void onReload(INucleusServiceCollection serviceCollection) {
+    @Override
+    public void onReload(INucleusServiceCollection serviceCollection) {
         this.isDefaultQuiet = serviceCollection.moduleDataProvider().getModuleConfig(TeleportConfig.class).isDefaultQuiet();
     }
 
     @Override
     public CommandElement[] parameters(INucleusServiceCollection serviceCollection) {
-       return new CommandElement[]{
+        return new CommandElement[]{
                 GenericArguments.flags().flag("f")
-                    .setAnchorFlags(true)
-                    .valueFlag(
-                            serviceCollection.commandElementSupplier()
-                                .createPermissionParameter(
-                                        GenericArguments.bool(Text.of(this.quietKey)), TeleportPermissions.TELEPORT_QUIET, false), "q")
-                    .buildWith(GenericArguments.none()),
+                        .setAnchorFlags(true)
+                        .valueFlag(
+                                serviceCollection.commandElementSupplier()
+                                        .createPermissionParameter(
+                                                GenericArguments.bool(Text.of(this.quietKey)), TeleportPermissions.TELEPORT_QUIET, false), "q")
+                        .buildWith(GenericArguments.none()),
 
-                    new AlternativeUsageArgument(
+                new AlternativeUsageArgument(
                         GenericArguments.seq(
                                 IfConditionElseArgument.permission(
                                         serviceCollection.permissionService(),
@@ -99,17 +101,18 @@ public class TeleportCommand implements ICommandExecutor<CommandSource>, IReload
                                         NucleusParameters.ONE_USER_PLAYER_KEY.get(serviceCollection),
                                         NucleusParameters.ONE_PLAYER.get(serviceCollection)),
 
-                            new IfConditionElseArgument(
-                                    serviceCollection.permissionService(),
-                                    GenericArguments.optionalWeak(
-                                            new SelectorArgument(
-                                                    new DisplayNameArgument(Text.of(this.playerToKey), DisplayNameArgument.Target.PLAYER, serviceCollection),
-                                                    Player.class,
-                                                    serviceCollection
-                                            )
-                                    ),
-                                    GenericArguments.none(),
-                                    this::testForSecondPlayer)),
+                                new IfConditionElseArgument(
+                                        serviceCollection.permissionService(),
+                                        GenericArguments.optionalWeak(
+                                                new SelectorArgument(
+                                                        new DisplayNameArgument(Text.of(this.playerToKey), DisplayNameArgument.Target.USER,
+                                                                serviceCollection),
+                                                        Player.class,
+                                                        serviceCollection
+                                                )
+                                        ),
+                                        GenericArguments.none(),
+                                        this::testForSecondPlayer)),
 
                         src -> {
                             StringBuilder sb = new StringBuilder();
@@ -124,8 +127,8 @@ public class TeleportCommand implements ICommandExecutor<CommandSource>, IReload
 
                             return Text.of(sb.toString());
                         }
-                    )
-       };
+                )
+        };
     }
 
     private boolean testForSecondPlayer(IPermissionService permissionService, CommandSource source, CommandContext context) {
@@ -140,15 +143,17 @@ public class TeleportCommand implements ICommandExecutor<CommandSource>, IReload
         return false;
     }
 
-    @Override public Optional<ICommandResult> preExecute(ICommandContext.Mutable<? extends CommandSource> context) throws CommandException {
+    @Override
+    public Optional<ICommandResult> preExecute(ICommandContext.Mutable<? extends CommandSource> context) throws CommandException {
         return context.getServiceCollection()
-                    .getServiceUnchecked(PlayerTeleporterService.class)
-                    .canTeleportTo(context.getIfPlayer(), context.requireOne(NucleusParameters.Keys.PLAYER, Player.class)) ?
+                .teleporterService()
+                .canTeleportTo(context.getIfPlayer(), context.requireOne(NucleusParameters.Keys.PLAYER, Player.class)) ?
                 Optional.empty() :
                 Optional.of(context.failResult());
     }
 
-    @Override public ICommandResult execute(ICommandContext<? extends CommandSource> context) throws CommandException {
+    @Override
+    public ICommandResult execute(ICommandContext<? extends CommandSource> context) throws CommandException {
         boolean beQuiet = context.getOne(this.quietKey, Boolean.class).orElse(this.isDefaultQuiet);
         Optional<Player> oTo = context.getOne(this.playerToKey, Player.class);
         User to;
@@ -169,12 +174,21 @@ public class TeleportCommand implements ICommandExecutor<CommandSource>, IReload
             return context.errorResult("command.playeronly");
         }
 
+        CommandEvent.CauseToUser event = new CommandEvent.CauseToUser(context.getCause(), fromUser.getUniqueId(), to.getUniqueId());
+        if (Sponge.getEventManager().post(event)) {
+            if (event.getCancelMessage().isPresent()) {
+                return context.errorResultLiteral(event.getCancelMessage().get());
+            } else {
+                return context.errorResult("command.tp.eventfailed");
+            }
+        }
+
         if (from != null && to.getPlayer().isPresent()) {
             try (CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
                 frame.pushCause(context.getIfPlayer());
                 TeleportResult result =
                         context.getServiceCollection()
-                            .getServiceUnchecked(PlayerTeleporterService.class)
+                                .teleporterService()
                                 .teleportWithMessage(
                                         context.getIfPlayer(),
                                         from,

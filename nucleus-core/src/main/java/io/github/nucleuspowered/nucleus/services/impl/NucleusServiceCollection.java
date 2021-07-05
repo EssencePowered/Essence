@@ -26,6 +26,7 @@ import io.github.nucleuspowered.nucleus.services.interfaces.IPlatformService;
 import io.github.nucleuspowered.nucleus.services.interfaces.IPlayerDisplayNameService;
 import io.github.nucleuspowered.nucleus.services.interfaces.IPlayerInformationService;
 import io.github.nucleuspowered.nucleus.services.interfaces.IPlayerOnlineService;
+import io.github.nucleuspowered.nucleus.services.interfaces.IPlayerTeleporterService;
 import io.github.nucleuspowered.nucleus.services.interfaces.IReloadableService;
 import io.github.nucleuspowered.nucleus.services.interfaces.IStorageManager;
 import io.github.nucleuspowered.nucleus.services.interfaces.ITextFileControllerCollection;
@@ -67,6 +68,7 @@ public class NucleusServiceCollection implements INucleusServiceCollection {
     private final Provider<IPlayerDisplayNameService> playerDisplayNameService;
     private final Provider<IModuleDataProvider> moduleConfigProvider;
     private final Provider<INucleusTeleportService> nucleusTeleportServiceProvider;
+    private final Provider<IPlayerTeleporterService> playerTeleporterService;
     private final Provider<ICommandElementSupplier> commandElementSupplierProvider;
     private final Provider<INucleusTextTemplateFactory> nucleusTextTemplateFactoryProvider;
     private final Provider<ITextFileControllerCollection> textFileControllerCollectionProvider;
@@ -105,6 +107,7 @@ public class NucleusServiceCollection implements INucleusServiceCollection {
         this.playerDisplayNameService = new LazyLoad<>(this, injector, IPlayerDisplayNameService.class);
         this.moduleConfigProvider = new LazyLoad<>(this, injector, IModuleDataProvider.class);
         this.nucleusTeleportServiceProvider = new LazyLoad<>(this, injector, INucleusTeleportService.class);
+        this.playerTeleporterService = new LazyLoad<>(this, injector, IPlayerTeleporterService.class);
         this.textStyleServiceProvider = new LazyLoad<>(this, injector, ITextStyleService.class);
         this.commandElementSupplierProvider = new LazyLoad<>(this, injector, ICommandElementSupplier.class);
         this.nucleusTextTemplateFactoryProvider = new LazyLoad<>(this, injector, INucleusTextTemplateFactory.class);
@@ -181,6 +184,10 @@ public class NucleusServiceCollection implements INucleusServiceCollection {
 
     @Override public INucleusTeleportService teleportService() {
         return this.nucleusTeleportServiceProvider.get();
+    }
+
+    @Override public IPlayerTeleporterService teleporterService() {
+        return this.playerTeleporterService.get();
     }
 
     @Override public ICommandElementSupplier commandElementSupplier() {
